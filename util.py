@@ -63,7 +63,7 @@ def fromNPtoPIL(img):
 #
 #
 #
-def read_img_cv2(filename, maxClip = 1e4, grayscale = True):
+def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True):
 
     ext = (os.path.splitext(filename)[1]).lower()
     
@@ -84,7 +84,10 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True):
 
     if grayscale: #REC 709
         if len(img.shape) == 3:
-            y = 0.2126 * img[:,:,2] + 0.7152 * img[:,:,1] + 0.0722 * img[:,:,0]
+            if colorspace == 'REC709':
+                y = 0.2126 * img[:,:,2] + 0.7152 * img[:,:,1] + 0.0722 * img[:,:,0]
+            elif colorspace == 'REC2020':
+                y = 0.263  * img[:,:,2] + 0.678  * img[:,:,1] + 0.059  * img[:,:,0]
         else:
             y = img
     else:
@@ -92,6 +95,8 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True):
         y = np.reshape(img, (sz[2], sz[1], sz[0]))
 
     if log_range:
+        if display_referred:
+            y = (y * maxClip) /np.max(y)
         y = np.log(y + 1) / np.log(maxClip)
 
     z = torch.FloatTensor(y)

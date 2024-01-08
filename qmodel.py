@@ -25,7 +25,7 @@ class QModel:
     #
     #
     #
-    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True):
+    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
     
         self.run = run
         ext = os.path.splitext(run)[1]
@@ -50,28 +50,39 @@ class QModel:
         if ckpt == 'none.pth':
             bLoad = False
             
+        if grayscale:
+            n_in =1
+        else:
+            n_in = 3
+            
         if btype == 0:
-            model = QNetC()
+            model = QNetC(n_in, 1)
         elif btype == 1:
-            model = QNetBN()
+            model = QNetBN(n_in, 1)
         elif btype == 2:
-            model = QNetRZ()
+            model = QNetRZ(n_in, 1)
         elif btype == 3:
-            model = QNetRes()
+            model = QNetRes(n_in, 1)
+            
+        if bLoad:
+            if torch.cuda.is_available():
+                ckpt = torch.load(ckpt)
+            else:
+                ckpt = torch.load(ckpt, map_location=torch.device('cpu'))
+
+        model.load_state_dict(ckpt['model'])
 
         if(torch.cuda.is_available()):
             model = model.cuda()
 
-        if bLoad:
-            ckpt = torch.load(ckpt)
-            model.load_state_dict(ckpt['model'])
-            
         model.eval()
         
         self.model = model
 
+        self.colorspace = colorspace
         self.maxClip = maxClip
         self.grayscale = grayscale
+        self.display_referred = (display_referred == 'yes')
     
     #
     #
@@ -84,7 +95,7 @@ class QModel:
     #
     def predict(self, fn):
                
-        stim = read_img_cv2(fn, maxClip = self.maxClip, grayscale = self.grayscale)
+        stim = read_img_cv2(fn, maxClip = self.maxClip, grayscale = self.grayscale, colorspace = self.colorspace, display_referred = self.display_referred)
         stim = stim.unsqueeze(0)
 
         if torch.cuda.is_available():
