@@ -21,13 +21,13 @@ if __name__ == '__main__':
     bGrayscale = (args.color == 'gray')
         
     if args.mode == 'SDR':
-        model = QModel('weights/weights_norpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace)
+        model = QModel('weights/weights_norpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'HDR_COMP':
-        model = QModel('weights/weights_norpp_jpg_xt.pth', btype = 2, grayscale = True, colorspace = args.colorspace)
+        model = QModel('weights/weights_norpp_jpg_xt.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'HDR_ITMO':
-        model = QModel('weights/weights_norpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace)
+        model = QModel('weights/weights_norpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'SDR_TMO':
-        model = QModel('weights/weights_norpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace)
+        model = QModel('weights/weights_norpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     else:
         print('The mode ' + args.mode + ' selected is not supported.')
         print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')
