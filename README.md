@@ -25,26 +25,54 @@ pip3 install numpy, scipy, matplotlib, glob2, pandas, image, scikit-learn, openc
 
 HOW TO RUN IT:
 ==============
-To run our metric on a folder of images (i.e., JPEG, PNG, EXR, and HDR, files), you need to launch the file ```nor-vdpnetpp.py```; for example:
+To run our metric on a folder of images (i.e., JPEG, PNG, EXR, HDR, and MAT files),
+you need to launch the file ```norvdpnet.py```. Some examples:
+
+Testing SDR images for the trained distortions (see the paper):
 
 ```
-python3 nor-vdpnetpp.py tonemapping /home/user00/images
+python3 norvdpnetpp.py SDR /home/user00/images_to_be_sdr/
+```
+
+Testing HDR images after JPEG-XT compression:
+
+```
+python3 norvdpnetpp.py HDR_COMP /home/user00/images_to_be_hdr/
+```
+
+Testing HDR images after tone mapping operators:
+
+```
+python3 norvdpnetpp.py SDR_TMO /home/user00/images_to_be_sdr/
+```
+
+Testing images after inverse tone mapping operators:
+
+```
+python3 norvdpnetpp.py HDR_ITMO /home/user00/images_to_be_hdr/
 ```
 
 WEIGHTS DOWNLOAD:
 =================
-Coming soon.
+Weights can be downloaded at this <a href="https://www.banterle.com/francesco/projects/nor-vdpnet/weights_norvdpnetpp.zip">link</a>.
+
+Note that these weights are meant to model ONLY determined distortions; please see reference to have a complete overview.
+
 
 DO NOT:
 =======
 
-1) Please do not use weights_sdr for HDR images;
+There are many people use NoR-VDPNet++ in an appropriate way:
 
-2) Please do not use weights_hdrc for SDR images;
+1) Please do not use weights_nor_sdr for HDR images;
 
-3) Please do not use weights_hdrc for testing distortions that are not JPEG-XT distortions or compression distortions;
+2) Please do not use weights_nor_jpg_xt for SDR images;
 
-4) Please do not use weights_sdr for distortions that are not in the paper.
+3) Please do not use weights_nor_tmo for HDR images; only gamma-encoded SDR images!!!
+
+4) Please do not use weights_nor_itmo for SDR images;
+
+5) Please do not use weights for different distortions.
 
 DATASET PREPARATION:
 ====================
