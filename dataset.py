@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import torch
-from util import read_img, read_mat, read_img_cv2
+from util import read_img_cv2
 from torch.utils.data import Dataset, ConcatDataset, DataLoader
 from torchvision.transforms.functional import to_tensor
 import torchvision.transforms as T
