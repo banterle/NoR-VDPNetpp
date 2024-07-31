@@ -88,22 +88,15 @@ REFERENCE:
 
 If you use NoR-VDPNet in your work, please cite it using this reference:
 
-
+```
 @ARTICLE{10089442,
-
   author={Banterle, Francesco and Artusi, Alessandro and Moreo, Alejandro and Carrara, Fabio and Cignoni, Paolo},
-
   journal={IEEE Access}, 
-
   title={NoR-VDPNet++: Real-Time No-Reference Image Quality Metrics}, 
-
   year={2023},
-
   volume={11},
-
   number={},
-
   pages={34544-34553},
-
   doi={10.1109/ACCESS.2023.3263496}
 }
+```
