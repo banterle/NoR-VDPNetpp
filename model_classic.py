@@ -28,7 +28,7 @@ class BlockQ(nn.Module):
 #
 class QNetC(nn.Module):
 
-    def __init__(self, in_size=1, out_size=1, params_size = None):
+    def __init__(self, in_size=1, out_size=1, params_size = None, bSigmoid = True):
         super(QNetC, self).__init__()
 
         self.conv = nn.Sequential(
@@ -53,7 +53,7 @@ class QNetC(nn.Module):
                     nn.MaxPool2d(2),
                     )
  
-        self.regressor = Regressor(512, out_size, params_size)
+        self.regressor = Regressor(512, out_size, params_size, bSigmoid)
 
     #
     #

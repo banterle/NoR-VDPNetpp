@@ -29,7 +29,7 @@ class BlockQ(nn.Module):
 #
 class QNetRZ(nn.Module):
 
-    def __init__(self, in_size=1, out_size=1, params_size = None):
+    def __init__(self, in_size=1, out_size=1, params_size = None, bSigmoid = True):
         super(QNetRZ, self).__init__()
 
         self.conv = nn.Sequential(
@@ -55,7 +55,7 @@ class QNetRZ(nn.Module):
 
         )
         
-        self.regressor = Regressor(512, out_size, params_size)
+        self.regressor = Regressor(512, out_size, params_size, bSigmoid)
 
     def forward(self, stim, lmax = None):
         features = self.conv(stim)

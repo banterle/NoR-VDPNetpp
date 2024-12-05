@@ -14,7 +14,7 @@ class Regressor(nn.Module):
     #
     #
     #
-    def __init__(self, in_size=1, out_size=1, params_size = None):
+    def __init__(self, in_size=1, out_size=1, params_size = None, bSigmoid = True):
         super(Regressor, self).__init__()
 
         if params_size == None:
@@ -22,12 +22,19 @@ class Regressor(nn.Module):
 
         self.params_size = params_size
 
-        self.regressor = nn.Sequential(
-                nn.Linear(in_size + params_size, 256),
-                nn.ReLU(),
-                nn.Linear(256, out_size),
-                nn.Sigmoid()
-            )
+        if bSigmoid:
+            self.regressor = nn.Sequential(
+                    nn.Linear(in_size + params_size, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, out_size),
+                    nn.Sigmoid()
+                    )
+        else:
+            self.regressor = nn.Sequential(
+                    nn.Linear(in_size + params_size, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, out_size)
+                    )
 
     #
     #
@@ -41,8 +48,8 @@ class Regressor(nn.Module):
             
         q = self.regressor(features)
         
-        #if not self.training:
-        #    q = q.clamp(0,1)
+        if not self.training:
+            q = q.clamp(0,1)
             
         return q
 

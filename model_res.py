@@ -18,7 +18,7 @@ class QNetRes(nn.Module):
     #
     #
     #
-    def __init__(self, in_size = 1, out_size=1, params_size = None, whichResnet = 18):
+    def __init__(self, in_size = 1, out_size=1, params_size = None, whichResnet = 18, bSigmoid = True):
         super(QNetRes, self).__init__()
         
         """Load the pretrained ResNet-50 and replace top fc layer."""
@@ -32,7 +32,7 @@ class QNetRes(nn.Module):
         self.resnet = nn.Sequential(*modules)
 
         #network            
-        self.regressor = Regressor(resnet.fc.in_features, out_size, params_size)
+        self.regressor = Regressor(resnet.fc.in_features, out_size, params_size, bSigmoid)
     
      
     #

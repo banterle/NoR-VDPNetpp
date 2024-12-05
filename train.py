@@ -32,6 +32,12 @@ from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
 
+def loss_f(x, y, bSigmoid = True)
+    if bSigmoid:
+        return F.l1_loss(x, y)
+    else:
+        return F.mse_loss(x, y)
+
 #
 # training for a single epoch
 #
@@ -50,7 +56,7 @@ def train(loader, model, optimizer, args):
                    
         q_hat = model(stim, lmax)
         
-        loss = F.l1_loss(q_hat, q)
+        loss = loss_f(q_hat, q, args.sigmoid == 1)
         
         optimizer.zero_grad()
         loss.backward()
@@ -83,7 +89,7 @@ def evaluate(loader, model, args):
                 lmax = lmax.cuda()
 
             q_hat = model(stim, lmax)
-            loss = F.l1_loss(q_hat, q)
+            loss = loss_f(q_hat, q, args.sigmoid == 1)
         
             counter += 1
             total_loss += loss.item()
@@ -117,6 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
+    parser.add_argument('--sigmoid', type=int, default=1, help='Sigmoid last layer')
     args = parser.parse_args()
   
     args.grayscale = (args.grayscale == 1)
@@ -182,18 +189,19 @@ if __name__ == '__main__':
         
     params_size_net = None
     
+    args_bSigmoid = (args.sigmoid == 1)
     out_str = ''
     if args.btype == 0:
-        model = QNetC(n_in, 1, params_size = params_size_net)
+        model = QNetC(n_in, 1, params_size = params_size_net, bSigmoid = args_bSigmoid)
         out_str = 'c'
     elif args.btype == 1:
-        model = QNetBN(n_in, 1, params_size = params_size_net, layer_norm = 0)
+        model = QNetBN(n_in, 1, params_size = params_size_net, layer_norm = 0, bSigmoid = args_bSigmoid)
         out_str = 'bn'
     elif args.btype == 2:
-        model = QNetRZ(n_in, 1, params_size = params_size_net)
+        model = QNetRZ(n_in, 1, params_size = params_size_net, bSigmoid = args_bSigmoid)
         out_str = 'rz'
     elif args.btype == 3:
-        model = QNetRes(n_in, 1, params_size = params_size_net, whichResnet = 18)
+        model = QNetRes(n_in, 1, params_size = params_size_net, whichResnet = 18, bSigmoid = args_bSigmoid)
         out_str = 'res18'
 
     #create the model
@@ -282,6 +290,8 @@ if __name__ == '__main__':
                 'mse_val': val_loss,
                 'mse_test': test_loss,
                 'model': model.state_dict(),
-                'optimizer': optimizer.state_dict()
+                'optimizer': optimizer.state_dict(),
+                'sigmoid': args.sigmoid,
+                'grayscale': grayscale
             }, ckpt)
         scheduler.step(val_loss)

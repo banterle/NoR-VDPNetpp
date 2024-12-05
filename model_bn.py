@@ -37,7 +37,7 @@ class QNetBN(nn.Module):
     #
     #
     #
-    def __init__(self, in_size=1, out_size=1, params_size = None, layer_norm = 0):
+    def __init__(self, in_size=1, out_size=1, params_size = None, layer_norm = 0, bSigmoid = True):
         super(QNetBN, self).__init__()
         
         self.conv = nn.Sequential(
@@ -63,7 +63,7 @@ class QNetBN(nn.Module):
 
                                   )
             
-        self.regressor = Regressor(512, out_size, params_size)
+        self.regressor = Regressor(512, out_size, params_size, bSigmoid)
 
     #
     #
