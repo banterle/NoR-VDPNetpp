@@ -218,7 +218,6 @@ class HdrVdpDataset(Dataset):
         self.group = group
         self.bScaling = bScaling
         self.grayscale = grayscale
-        self.bImageNormalization = bImageNormalization
 
     #
     #
