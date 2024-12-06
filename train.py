@@ -36,7 +36,7 @@ def loss_f(x, y, bSigmoid = True):
     if bSigmoid:
         return F.l1_loss(x, y)
     else:
-        return F.mse_loss(x, y)
+        return F.mse_loss(x, y, reduction='mean')
 
 #
 # training for a single epoch
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
     parser.add_argument('-gpa', '--groupaffine', type=int, default=1, help='grouping affine')
-    parser.add_argument('-s', '--scaling', type=bool, default=False, help='scaling')
+    parser.add_argument('-s', '--scaling', type=int, default=0, help='scaling')
     parser.add_argument('-btype', type=int, default = 0, help='Base dir of run to evaluate')
     parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
@@ -127,6 +127,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
   
     args.grayscale = (args.grayscale == 1)
+    args.scaling = (args.scaling == 1)
   
     ### Prepare run dir
     params = vars(args)
