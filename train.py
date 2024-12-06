@@ -32,7 +32,7 @@ from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
 
-def loss_f(x, y, bSigmoid = True)
+def loss_f(x, y, bSigmoid = True):
     if bSigmoid:
         return F.l1_loss(x, y)
     else:
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     parser.add_argument('-btype', type=int, default = 0, help='Base dir of run to evaluate')
     parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
     parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
-    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
+    parser.add_argument('--lr', type=float, default=5e-5, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
