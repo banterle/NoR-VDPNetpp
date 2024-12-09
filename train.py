@@ -291,6 +291,6 @@ if __name__ == '__main__':
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'sigmoid': args.sigmoid,
-                'grayscale': args.rayscale
+                'grayscale': args.grayscale
             }, ckpt)
         scheduler.step(val_loss)
