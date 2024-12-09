@@ -139,7 +139,7 @@ if __name__ == '__main__':
     print('E: ' + str(args.epochs))
     print('LR: ' + str(args.lr))
     print('Batch: ' + str(args.batch))
-    print('Batch: ' + str(args.batch))
+    print('Sigmoid: ' + str(args.sigmoid))
     print('Model type: ' + str(args.btype))
     print('Scaling: ' + str(args.scaling))
     
@@ -212,7 +212,6 @@ if __name__ == '__main__':
     #create the optmizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
     scheduler = ReduceLROnPlateau(optimizer, patience=5, factor=0.5, verbose=True)
-    log = pd.DataFrame()
     
     #training loop
     best_mse = None
@@ -242,22 +241,21 @@ if __name__ == '__main__':
        start_epoch = ckpt['epoch']
        best_mse = ckpt['mse_val']
     
-    
+    a_e = []
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = train(train_loader, model, optimizer, args)
         val_loss, targets_v, predictions_v = evaluate(val_loader, model, args)
         test_loss,  targets_t, predictions_t = evaluate(test_loader, model, args)
 
-        metrics = {'epoch': epoch}
-        metrics['mse_train'] = cur_loss
-        metrics['mse_val'] = val_loss
-        metrics['mse_test'] = test_loss
-        log = log.append(metrics, ignore_index=True)
-        log.to_csv(log_file, index=False)
-        
+       
+        a_e.append(epoch)
         a_t.append(cur_loss)
         a_v.append(val_loss)
         a_te.append(test_loss)
+
+        log = pd.DataFrame(data={'epoch': a_e, 'cur_loss': a_t, 'val_loss': a_v, 'test_loss': a_te})
+        log.to_csv(log_file, index=False)
+
 
         if (best_mse is None) or (val_loss < best_mse) or (epoch == args.epochs):
             delta = (targets_t - predictions_t)
@@ -293,6 +291,6 @@ if __name__ == '__main__':
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
                 'sigmoid': args.sigmoid,
-                'grayscale': grayscale
+                'grayscale': args.rayscale
             }, ckpt)
         scheduler.step(val_loss)
