@@ -12,6 +12,7 @@ import glob2
 
 import pandas as pd
 import numpy as np
+import threading
 
 import torch
 import torch.nn.functional as F
@@ -114,12 +115,12 @@ if __name__ == '__main__':
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('data', type=str, help='Path to data dir')
     parser.add_argument('-g', '--group', type=int, help='grouping factor for augmented dataset')
-    parser.add_argument('-gpa', '--groupaffine', type=int, default=1, help='grouping affine')
+    parser.add_argument('-gpa', '--groupaffine', type=int, default=-1, help='grouping affine')
     parser.add_argument('-s', '--scaling', type=int, default=0, help='scaling')
     parser.add_argument('-btype', type=int, default = 0, help='Base dir of run to evaluate')
     parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
-    parser.add_argument('-b', '--batch', type=int, default=8, help='Batch size')
-    parser.add_argument('--lr', type=float, default=5e-5, help='Learning rate')
+    parser.add_argument('-b', '--batch', type=int, default=32, help='Batch size')
+    parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
@@ -134,6 +135,7 @@ if __name__ == '__main__':
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
     
     results_str = os.path.basename(os.path.normpath(args.data))
+    print('Dataset: ' + str(args.data))
     print('Group: ' + str(args.group))
     print('Group Affine: ' + str(args.groupaffine))
     print('E: ' + str(args.epochs))
@@ -161,7 +163,7 @@ if __name__ == '__main__':
     ### Load Data
     if os.path.exists(os.path.join(args.data, 'train.csv')):
         print('Precomputed train/validation/test')
-        train_data, val_data, test_data = read_data_split(args.data, args.group, args.groupaffine)
+        train_data, val_data, test_data = read_data_split(args.data)
     else:
         print('Computing train/validation/test')
         train_data, val_data, test_data = split_data(args.data, group=args.group, groupaffine = args.groupaffine)
@@ -174,13 +176,15 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, group = args.group, groupaffine = args.groupaffine, bScaling = args.scaling, grayscale = args.grayscale)
+    train_data = HdrVdpDataset(train_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
     train_loader = DataLoader(train_data, shuffle=True, batch_size=args.batch, num_workers=8, pin_memory=True)
+    
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, group = args.group, groupaffine = args.groupaffine, bScaling = args.scaling, grayscale = args.grayscale)
-    val_loader = DataLoader(val_data, shuffle=False, batch_size=args.batch, num_workers=8, pin_memory=True)
+    val_data = HdrVdpDataset(val_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
+    val_loader = DataLoader(val_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
+    
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, group = args.group, groupaffine = args.groupaffine, bScaling = args.scaling, grayscale = args.grayscale)
+    test_data = HdrVdpDataset(test_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     if args.grayscale:
@@ -211,7 +215,7 @@ if __name__ == '__main__':
 
     #create the optmizer
     optimizer = AdamW(model.parameters(), lr=args.lr)
-    scheduler = ReduceLROnPlateau(optimizer, patience=5, factor=0.5, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, patience=5, factor=0.5)
     
     #training loop
     best_mse = None
@@ -230,7 +234,7 @@ if __name__ == '__main__':
        assert ckpts, "No checkpoints to resume from!"
     
        def get_epoch(ckpt_url):
-           s = re.findall("ckpt_e(\d+).pth", ckpt_url)
+           s = re.findall("ckpt_e(\\d+).pth", ckpt_url)
            epoch = int(s[0]) if s else -1
            return epoch, ckpt_url
     
@@ -242,11 +246,12 @@ if __name__ == '__main__':
        best_mse = ckpt['mse_val']
     
     a_e = []
+    lock = threading.Lock()
+
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = train(train_loader, model, optimizer, args)
         val_loss, targets_v, predictions_v = evaluate(val_loader, model, args)
         test_loss,  targets_t, predictions_t = evaluate(test_loader, model, args)
-
        
         a_e.append(epoch)
         a_t.append(cur_loss)
@@ -255,7 +260,6 @@ if __name__ == '__main__':
 
         log = pd.DataFrame(data={'epoch': a_e, 'cur_loss': a_t, 'val_loss': a_v, 'test_loss': a_te})
         log.to_csv(log_file, index=False)
-
 
         if (best_mse is None) or (val_loss < best_mse) or (epoch == args.epochs):
             delta = (targets_t - predictions_t)
@@ -271,14 +275,24 @@ if __name__ == '__main__':
             
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
             np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
+
+            lock.acquire()
             plt.clf()
             sns.distplot(errors, kde=True, rug=True)
             plt.savefig('results_'+results_str+'/hist_errors_test_' +  out_str + '.png')
             plt.savefig(os.path.join(run_dir, 'hist_errors_test_' +  out_str + '.png'))
 
+            plt.clf()
+            fig, ax = plt.subplots()
+            ax.plot(targets_t,predictions_t, '+', markeredgewidth = 1)
+            ax.set(xlim=(0,1), ylim=(0,1))
+            plt.savefig(os.path.join(run_dir, 'scatter_plot_test_' +  out_str + '.png'))
+
             name_f = 'plot_' + out_str + '.png'
             plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
             plotGraph(a_t, a_v, a_te, run_dir, name_f)
+            lock.release()
+                        
             best_mse = val_loss
             print(ckpt_dir)
             ckpt = os.path.join(ckpt_dir, 'ckpt_e{}.pth'.format(epoch))

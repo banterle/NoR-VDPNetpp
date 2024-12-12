@@ -55,7 +55,7 @@ def getVec(data):
 #
 #
 #
-def filterData(data, groupaffine):
+def filterData(data):
     out = []
     
     fn = []
@@ -64,39 +64,37 @@ def filterData(data, groupaffine):
     gpa = []
         
     n = len(data)
-    for i in range(0, n):
-        if '_P_0_' in data.iloc[i].Distorted:
-           continue
-           
+
+    bI = False
+    for i in range(0, n):          
         fn.append(data.iloc[i].Distorted)
         q_val.append(data.iloc[i].Q)
         lmax.append(data.iloc[i].Lmax)
         
-        if groupaffine > 1:
+        if 'I' in data.iloc[i]:
             gpa.append(data.iloc[i].I)
+            bI = True
  
-    if groupaffine <= 1:
-        d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val}
-    else:
+    if bI:
         d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val, 'I': gpa}
+    else:
+        d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val}
+
     out = pd.DataFrame(data=d)
     return out
     
 #
 #
 #
-def read_data_split(data_dir, group=None, groupaffine = 1):
+def read_data_split(data_dir):
     train = pd.read_csv(os.path.join(data_dir, 'train.csv'))
-    train = filterData(train, groupaffine)
-    train.sort_values(by=['Distorted'], inplace=True)
+    train = filterData(train)
 
     val = pd.read_csv(os.path.join(data_dir, 'val.csv'))
-    val = filterData(train, groupaffine)
-    val.sort_values(by=['Distorted'], inplace=True)
+    val = filterData(val)
 
     test = pd.read_csv(os.path.join(data_dir, 'test.csv'))
-    val = filterData(train, groupaffine)
-    test.sort_values(by=['Distorted'], inplace=True)
+    test = filterData(test)
 
     return train, val, test
 
@@ -211,11 +209,9 @@ class HdrVdpDataset(Dataset):
     #
     #
     #
-    def __init__(self, data, base_dir, group = None, groupaffine=1, bScaling = False, grayscale = True):
+    def __init__(self, data, base_dir, bScaling = False, grayscale = True):
         self.data = data
         self.base_dir = base_dir
-        self.groupaffine = groupaffine
-        self.group = group
         self.bScaling = bScaling
         self.grayscale = grayscale
 
@@ -240,9 +236,8 @@ class HdrVdpDataset(Dataset):
         else:
             lmax = torch.FloatTensor([sample.Lmax])
             
-        if self.group != None:
-            if self.groupaffine > 1:
-                stim = torchDataAugmentation(stim, sample.I)
+        if 'I' in sample :
+            stim = torchDataAugmentation(stim, sample.I)
 
         return stim, q, lmax
 

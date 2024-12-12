@@ -80,7 +80,7 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
     if not log_range: #SDR images
         img = img.astype('float32')
         img = img / 255.0
-        img = np.power(img, 2.2) #lineariation        
+        img = np.power(img, 2.2) #linearization        
 
     if grayscale: #REC 709
         if len(img.shape) == 3:
@@ -97,6 +97,7 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
     if log_range:
         if display_referred:
             y = (y * maxClip) /np.max(y)
+
         y = np.log(y + 1) / np.log(maxClip)
 
     z = torch.FloatTensor(y)
