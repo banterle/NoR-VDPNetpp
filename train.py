@@ -22,7 +22,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from tqdm import tqdm, trange
 
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 import seaborn as sns
 
 from dataset import torchDataAugmentation
@@ -37,18 +40,18 @@ def loss_f(x, y, bSigmoid = True):
     if bSigmoid:
         return F.l1_loss(x, y)
     else:
-        return F.mse_loss(x, y, reduction='mean')
+        return F.mse_loss(x, y)
 
 #
 # training for a single epoch
 #
 def train(loader, model, optimizer, args):
     model.train()
-    
-    
+        
     progress = tqdm(loader)
     total_loss = 0.0
     counter = 0
+    bSigmoid = (args.sigmoid == 1)
     for stim, q, lmax in progress:
         if torch.cuda.is_available():
             stim = stim.cuda()
@@ -57,7 +60,7 @@ def train(loader, model, optimizer, args):
                    
         q_hat = model(stim, lmax)
         
-        loss = loss_f(q_hat, q, args.sigmoid == 1)
+        loss = loss_f(q_hat, q, bSigmoid)
         
         optimizer.zero_grad()
         loss.backward()
@@ -82,6 +85,7 @@ def evaluate(loader, model, args):
     targets = []
     predictions = []
 
+    bSigmoid = (args.sigmoid == 1)
     for stim, q, lmax in progress:
         with torch.no_grad():
             if torch.cuda.is_available():
@@ -90,7 +94,7 @@ def evaluate(loader, model, args):
                 lmax = lmax.cuda()
 
             q_hat = model(stim, lmax)
-            loss = loss_f(q_hat, q, args.sigmoid == 1)
+            loss = loss_f(q_hat, q, bSigmoid)
         
             counter += 1
             total_loss += loss.item()
@@ -119,8 +123,8 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--scaling', type=int, default=0, help='scaling')
     parser.add_argument('-btype', type=int, default = 0, help='Base dir of run to evaluate')
     parser.add_argument('-e', '--epochs', type=int, default=100, help='Number of training epochs')
-    parser.add_argument('-b', '--batch', type=int, default=32, help='Batch size')
-    parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
+    parser.add_argument('-b', '--batch', type=int, default=1, help='Batch size')
+    parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
@@ -276,13 +280,12 @@ if __name__ == '__main__':
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
             np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
 
-            lock.acquire()
-            plt.clf()
-            sns.distplot(errors, kde=True, rug=True)
-            plt.savefig('results_'+results_str+'/hist_errors_test_' +  out_str + '.png')
-            plt.savefig(os.path.join(run_dir, 'hist_errors_test_' +  out_str + '.png'))
+            #plt.clf()
+            #sns.distplot(errors, kde=True, rug=True)
+            #plt.savefig('results_'+results_str+'/hist_errors_test_' +  out_str + '.png')
+            #plt.savefig(os.path.join(run_dir, 'hist_errors_test_' +  out_str + '.png'))
 
-            plt.clf()
+            plt.clf() 
             fig, ax = plt.subplots()
             ax.plot(targets_t,predictions_t, '+', markeredgewidth = 1)
             ax.set(xlim=(0,1), ylim=(0,1))
@@ -291,7 +294,6 @@ if __name__ == '__main__':
             name_f = 'plot_' + out_str + '.png'
             plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
             plotGraph(a_t, a_v, a_te, run_dir, name_f)
-            lock.release()
                         
             best_mse = val_loss
             print(ckpt_dir)

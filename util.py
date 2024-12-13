@@ -5,7 +5,11 @@
 
 import os
 import sys
-import matplotlib.pyplot as plt
+
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
@@ -121,5 +125,6 @@ def plotGraph(array1, array2, array3, folder, name_f):    # plot
     plt.ylabel('loss')
     plt.legend(['train', 'validation','test'], loc="upper left")
     title = os.path.join(folder, name_f)
-    plt.savefig(title, dpi=600)
+    plt.savefig(title, dpi=300)
+    fig.clf()
     plt.close(fig)

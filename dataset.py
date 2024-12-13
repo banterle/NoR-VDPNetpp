@@ -221,7 +221,6 @@ class HdrVdpDataset(Dataset):
     def __getitem__(self, index):
         sample = self.data.iloc[index]
         stim = self.base_dir
-        #stim = os.path.join(stim, 'stim')
 
         fn = os.path.join(stim, sample.Distorted)
         stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale)
