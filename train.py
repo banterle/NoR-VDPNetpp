@@ -149,7 +149,7 @@ if __name__ == '__main__':
     print('Model type: ' + str(args.btype))
     print('Scaling: ' + str(args.scaling))
     
-    run_name = 'q_{0[dataset]}_lr{0[lr]}_e{0[epochs]}_b{0[batch]}_t{0[btype]}_g{0[grayscale]}'.format(params)
+    run_name = 'q_{0[dataset]}_lr{0[lr]}_e{0[epochs]}_b{0[batch]}_t{0[btype]}_g{0[grayscale]}_s{0[sigmoid]}'.format(params)
     run_dir = os.path.join(args.runs, run_name) 
     ckpt_dir = os.path.join(run_dir, 'ckpt')
     
@@ -306,7 +306,7 @@ if __name__ == '__main__':
                 'mse_test': test_loss,
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
-                'sigmoid': args.sigmoid,
+                'sigmoid': args_bSigmoid,
                 'grayscale': args.grayscale
             }, ckpt)
         scheduler.step(val_loss)
