@@ -25,7 +25,7 @@ class QModel:
     #
     #
     #
-    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes'):
+    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
     
         self.run = run
         ext = os.path.splitext(run)[1]
@@ -36,7 +36,7 @@ class QModel:
             assert ckpts, "No checkpoints to resume from!"
 
             def get_epoch(ckpt_url):
-                s = re.findall("ckpt_e(\d+).pth", ckpt_url)
+                s = re.findall("ckpt_e(\\d+).pth", ckpt_url)
                 epoch = int(s[0]) if s else -1
                 return epoch, ckpt_url
 
@@ -54,21 +54,41 @@ class QModel:
             n_in =1
         else:
             n_in = 3
-            
-        if btype == 0:
-            model = QNetC(n_in, 1)
-        elif btype == 1:
-            model = QNetBN(n_in, 1)
-        elif btype == 2:
-            model = QNetRZ(n_in, 1)
-        elif btype == 3:
-            model = QNetRes(n_in, 1)
-            
+                        
         if bLoad:
             if torch.cuda.is_available():
-                ckpt = torch.load(ckpt)
+                ckpt = torch.load(ckpt, weights_only=True)
             else:
-                ckpt = torch.load(ckpt, map_location=torch.device('cpu'))
+                ckpt = torch.load(ckpt, weights_only=True, map_location=torch.device('cpu'))
+
+        if 'grayscale' in ckpt:
+            if ckpt['grayscale']:
+                n_in =1
+            else:
+                n_in = 3
+
+        if 'sigmoid' in ckpt:
+            if ckpt['sigmoid'] == 1:
+                qbSigmoid = True
+
+            if ckpt['sigmoid'] == 0:
+                qbSigmoid = False
+
+            if ckpt['sigmoid'] == True:
+                qbSigmoid = True
+
+            if ckpt['sigmoid'] == False:
+                qbSigmoid = False
+
+
+        if btype == 0:
+            model = QNetC(n_in, 1, bSigmoid = qbSigmoid)
+        elif btype == 1:
+            model = QNetBN(n_in, 1, bSigmoid = qbSigmoid)
+        elif btype == 2:
+            model = QNetRZ(n_in, 1, bSigmoid = qbSigmoid)
+        elif btype == 3:
+            model = QNetRes(n_in, 1, bSigmoid = qbSigmoid)
 
         model.load_state_dict(ckpt['model'])
 
