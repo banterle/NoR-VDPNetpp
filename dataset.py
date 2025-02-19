@@ -168,9 +168,9 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
     #
     #
     
-    train = filterData(train, groupaffine)
-    val = filterData(val, groupaffine)
-    test = filterData(test, groupaffine)
+    train = filterData(train)
+    val = filterData(val)
+    test = filterData(test)
     
     #train = pd.concat(train)
     #val = pd.concat(val)
@@ -222,7 +222,7 @@ class HdrVdpDataset(Dataset):
         sample = self.data.iloc[index]
         stim = self.base_dir
 
-        fn = os.path.join(stim, sample.Distorted)
+        fn = os.path.join(stim, 'stim/' + sample.Distorted)
         stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale)
             
         if self.bScaling:
