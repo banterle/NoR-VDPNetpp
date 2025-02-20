@@ -80,6 +80,8 @@ class QModel:
             if ckpt['sigmoid'] == False:
                 qbSigmoid = False
 
+        if 'type' in ckpt:
+            btype = ckpt['type']
 
         if btype == 0:
             model = QNetC(n_in, 1, bSigmoid = qbSigmoid)
