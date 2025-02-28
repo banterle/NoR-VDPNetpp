@@ -12,7 +12,6 @@ import glob2
 
 import pandas as pd
 import numpy as np
-import threading
 
 import torch
 import torch.nn.functional as F
@@ -255,7 +254,7 @@ if __name__ == '__main__':
        best_mse = ckpt['mse_val']
     
     a_e = []
-    lock = threading.Lock()
+    ckpt_prev = ''
 
     for epoch in trange(start_epoch, args.epochs + 1):
         cur_loss = train(train_loader, model, optimizer, args)
@@ -317,4 +316,11 @@ if __name__ == '__main__':
                 'sigmoid': args_bSigmoid,
                 'grayscale': args.grayscale
             }, ckpt)
+                        
+            if ckpt_prev and (epoch < (args.epochs - 1)):
+                if os.path.isfile(ckpt_prev):
+                    os.remove(ckpt_prev)
+                    
+            ckpt_prev = ckpt
+
         scheduler.step(val_loss)
