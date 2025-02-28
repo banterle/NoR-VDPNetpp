@@ -29,13 +29,16 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 
 from dataset import torchDataAugmentation
-from util import plotGraph
+from util import *
 from dataset import split_data, read_data_split, HdrVdpDataset
 from model_classic import QNetC
 from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
 
+#
+#
+#
 def loss_f(x, y, bSigmoid = True):
     if bSigmoid:
         return F.l1_loss(x, y)
@@ -52,6 +55,7 @@ def train(loader, model, optimizer, args):
     total_loss = 0.0
     counter = 0
     bSigmoid = (args.sigmoid == 1)
+
     for stim, q, lmax in progress:
         if torch.cuda.is_available():
             stim = stim.cuda()
@@ -86,6 +90,7 @@ def evaluate(loader, model, args):
     predictions = []
 
     bSigmoid = (args.sigmoid == 1)
+
     for stim, q, lmax in progress:
         with torch.no_grad():
             if torch.cuda.is_available():
@@ -277,8 +282,11 @@ if __name__ == '__main__':
             targets_t = np.reshape(targets_t, (sz[0], 1))
             mtx = np.concatenate((targets_t, predictions_t, errors), axis=1)
             
+            rho = correlation(targets_t,predictions_t)
+            print('Correlation: ' + str(rho))
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
-            np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
+            np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho]), fmt='%f')
+            #np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
 
             #plt.clf()
             #sns.distplot(errors, kde=True, rug=True)
@@ -292,7 +300,7 @@ if __name__ == '__main__':
             plt.savefig(os.path.join(run_dir, 'scatter_plot_test_' +  out_str + '.png'))
 
             name_f = 'plot_' + out_str + '.png'
-            plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
+            #plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
             plotGraph(a_t, a_v, a_te, run_dir, name_f)
                         
             best_mse = val_loss

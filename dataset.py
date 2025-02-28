@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from numpy.random import Generator, PCG64
 
 #
 def torchDataAugmentation(img, j):
@@ -222,18 +223,21 @@ class HdrVdpDataset(Dataset):
         sample = self.data.iloc[index]
         stim = self.base_dir
 
+        lmax = sample.Lmax
+
         fn = os.path.join(stim, 'stim/' + sample.Distorted)
-        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale)
+        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale)        
             
+        q_out = sample.Q
+
         if self.bScaling:
-            q = torch.FloatTensor([sample.Q / 100.0])
+            q = torch.FloatTensor([q_out / 100.0])
         else:
-            q = torch.FloatTensor([sample.Q])
-            
+            q = torch.FloatTensor([q_out])
+         
         if self.bScaling:
             lmax = torch.FloatTensor([sample.Lmax / 10000.0])
-        else:
-            lmax = torch.FloatTensor([sample.Lmax])
+
             
         if 'I' in sample :
             stim = torchDataAugmentation(stim, sample.I)

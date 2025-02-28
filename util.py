@@ -21,6 +21,21 @@ LOGe_1400 = 7.24422751560335
 #
 #
 #
+def correlation(x, y):
+    x = np.array(x)
+    y = np.array(y)
+    mx = np.mean(x)
+    my = np.mean(y)
+
+    dx = x - mx
+    dy = y - my
+
+    r = np.sum(dx * dy) / (np.sqrt(np.sum(dx * dx)) * np.sqrt(np.sum(dy * dy)))
+    return r
+
+#
+#
+#
 def fromPILtoNP(img, bNorm = False):
     #img_np = np.array(img.getdata()).reshape(img.size[0], img.size[1], 3)
     img_np = np.array(img);
@@ -103,6 +118,8 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
             y = (y * maxClip) /np.max(y)
 
         y = np.log(y + 1) / np.log(maxClip)
+
+    y = cv2.resize(y, (512,512), interpolation = cv2.INTER_LINEAR)
 
     z = torch.FloatTensor(y)
 
