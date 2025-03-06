@@ -25,7 +25,7 @@ class QModel:
     #
     #
     #
-    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
+    def __init__(self, run, btype = 2, maxClip = 1400, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
     
         self.run = run
         ext = os.path.splitext(run)[1]
@@ -50,10 +50,7 @@ class QModel:
         if ckpt == 'none.pth':
             bLoad = False
             
-        if grayscale:
-            n_in =1
-        else:
-            n_in = 3
+        n_in = 1
                         
         if bLoad:
             if torch.cuda.is_available():
@@ -63,7 +60,7 @@ class QModel:
 
         if 'grayscale' in ckpt:
             if ckpt['grayscale']:
-                n_in =1
+                n_in = 1
             else:
                 n_in = 3
 
