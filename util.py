@@ -14,12 +14,13 @@ import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
 import numpy as np
+from pu21_encoder import *
 import cv2
 
 LOGe_1400 = 7.24422751560335
 
 #
-#
+# PLCC
 #
 def correlation(x, y):
     x = np.array(x)
@@ -31,6 +32,24 @@ def correlation(x, y):
     dy = y - my
 
     r = np.sum(dx * dy) / (np.sqrt(np.sum(dx * dx)) * np.sqrt(np.sum(dy * dy)))
+    return r
+
+#
+#
+#
+def correlation_SROCC(x, y):
+    n = np.prod(x.size)
+    x = x.reshape(n,1)
+    y = y.reshape(n,1)
+
+    x = np.argsort(x, axis=0) + 1
+    y = np.argsort(y, axis=0) + 1
+
+    d = x - y
+    d_sq = d * d 
+    n_sq = n * n
+    sum_d_sq = np.sum(d_sq)
+    r = 1 - (6 * sum_d_sq / (n * (n_sq -1)))
     return r
 
 #
@@ -99,7 +118,7 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
     if not log_range: #SDR images
         img = img.astype('float32')
         img = img / 255.0
-        img = np.power(img, 2.2) #linearization        
+        #img = np.power(img, 2.2) #linearization        
 
     if grayscale: #REC 709
         if len(img.shape) == 3:
@@ -117,9 +136,9 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
         if display_referred:
             y = (y * maxClip) /np.max(y)
 
-        y = np.log(y + 1) / np.log(maxClip)
+        pu21 = PU21Encoder()
 
-    y = cv2.resize(y, (512,512), interpolation = cv2.INTER_LINEAR)
+        y = pu21.apply(y) / pu21.apply(maxClip)
 
     z = torch.FloatTensor(y)
 

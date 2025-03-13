@@ -142,7 +142,7 @@ if __name__ == '__main__':
     params = vars(args)
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
     
-    results_str = os.path.basename(os.path.normpath(args.data))
+    #results_str = os.path.basename(os.path.normpath(args.data))
     print('Dataset: ' + str(args.data))
     print('Group: ' + str(args.group))
     print('Group Affine: ' + str(args.groupaffine))
@@ -161,8 +161,8 @@ if __name__ == '__main__':
         os.makedirs(run_dir)
         os.makedirs(ckpt_dir)
         
-    if not os.path.exists('results_'+results_str):
-        os.makedirs('results_'+results_str)
+    #if not os.path.exists('results_'+results_str):
+    #    os.makedirs('results_'+results_str)
     
     log_file = os.path.join(run_dir, 'log.csv')
     param_file = os.path.join(run_dir, 'params.csv')
@@ -281,10 +281,11 @@ if __name__ == '__main__':
             targets_t = np.reshape(targets_t, (sz[0], 1))
             mtx = np.concatenate((targets_t, predictions_t, errors), axis=1)
             
-            rho = correlation(targets_t,predictions_t)
+            rho0 = correlation(targets_t,predictions_t)
+            rho1 = correlation_SROCC(targets_t,predictions_t)
             print('Correlation: ' + str(rho))
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
-            np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho]), fmt='%f')
+            np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho0, rho1]), fmt='%f')
             #np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
 
             #plt.clf()

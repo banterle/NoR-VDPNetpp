@@ -24,9 +24,12 @@ class QNetRes(nn.Module):
         """Load the pretrained ResNet-50 and replace top fc layer."""
         if whichResnet == 18:
             resnet = models.resnet18(weights=None)
-            
+           
         if whichResnet == 50:
             resnet = models.resnet50(weights = None)
+
+        for param in resnet.parameters():
+            param.requires_grad = False
             
         modules = list(resnet.children())[:-1] #remove the last fc layer.
         self.resnet = nn.Sequential(*modules)
@@ -53,6 +56,8 @@ class QNetRes(nn.Module):
                 stim = tmp.cuda()
             else:
                 stim = tmp
+
+        stim = (stim - 0.45) / 0.225
             
         x = self.resnet(stim)      #apply ResNet
         x = x.view(x.size(0), -1)  #flatten output of conv
