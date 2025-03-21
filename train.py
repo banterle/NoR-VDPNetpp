@@ -283,9 +283,9 @@ if __name__ == '__main__':
             
             rho0 = correlation(targets_t,predictions_t)
             rho1 = correlation_SROCC(targets_t,predictions_t)
-            print('Correlation: ' + str(rho))
+            print('Correlation: ' + str(rho0) + ' ' +str(rho1))
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
-            np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho0, rho1]), fmt='%f')
+            np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho0, rho1, val_loss]), fmt='%f')
             #np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
 
             #plt.clf()
@@ -303,6 +303,8 @@ if __name__ == '__main__':
             #plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
             plotGraph(a_t, a_v, a_te, run_dir, name_f)
                         
+            plt.close('all')
+
             best_mse = val_loss
             print(ckpt_dir)
             ckpt = os.path.join(ckpt_dir, 'ckpt_e{}.pth'.format(epoch))

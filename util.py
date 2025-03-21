@@ -16,6 +16,7 @@ from PIL import Image
 import numpy as np
 from pu21_encoder import *
 import cv2
+import scipy
 
 LOGe_1400 = 7.24422751560335
 
@@ -38,18 +39,19 @@ def correlation(x, y):
 #
 #
 def correlation_SROCC(x, y):
-    n = np.prod(x.size)
-    x = x.reshape(n,1)
-    y = y.reshape(n,1)
-
-    x = np.argsort(x, axis=0) + 1
-    y = np.argsort(y, axis=0) + 1
-
-    d = x - y
-    d_sq = d * d 
-    n_sq = n * n
-    sum_d_sq = np.sum(d_sq)
-    r = 1 - (6 * sum_d_sq / (n * (n_sq -1)))
+    
+    res = scipy.stats.spearmanr(x, y)
+    r = res.statistic
+    #n = np.prod(x.size)
+    #x = x.reshape(n,1)
+    #y = y.reshape(n,1)
+    #x = np.argsort(x, axis=0) + 1
+    #y = np.argsort(y, axis=0) + 1
+    #d = x - y
+    #d_sq = d * d 
+    #n_sq = n * n
+    #sum_d_sq = np.sum(d_sq)
+    #r = 1 - (6 * sum_d_sq / (n * (n_sq -1)))
     return r
 
 #
