@@ -14,17 +14,20 @@ if __name__ == '__main__':
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-dr', '--displayreferred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
+    parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
     args = parser.parse_args()
-            
+    
+    bGrayscale = (args.color == 'gray')
+        
     if args.mode == 'SDR':
-        model = QModel('weights/weights_norpp_sdr.pth', btype = 2, colorspace = args.colorspace, display_referred = args.displayreferred)
+        model = QModel('weights/weights_norpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'HDR_COMP':
-        model = QModel('weights/weights_norpp_jpg_xt.pth', btype = 2, colorspace = args.colorspace, display_referred = args.displayreferred)
+        model = QModel('weights/weights_norpp_jpg_xt.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'HDR_ITMO':
-        model = QModel('weights/weights_norpp_itmo.pth', btype = 2, colorspace = args.colorspace, display_referred = args.displayreferred)
+        model = QModel('weights/weights_norpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     elif args.mode == 'SDR_TMO':
-        model = QModel('weights/weights_norpp_tmo.pth', btype = 2, colorspace = args.colorspace, display_referred = args.displayreferred)
+        model = QModel('weights/weights_norpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
     else:
         print('The mode ' + args.mode + ' selected is not supported.')
         print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')

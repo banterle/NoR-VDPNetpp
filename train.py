@@ -133,6 +133,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', default=None, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
     parser.add_argument('--sigmoid', type=int, default=1, help='Sigmoid last layer')
+    parser.add_argument('--encoding', type=str, default='LOG10', help='Encoding for HDR values')
     args = parser.parse_args()
   
     args.grayscale = (args.grayscale == 1)
@@ -148,12 +149,13 @@ if __name__ == '__main__':
     print('Group Affine: ' + str(args.groupaffine))
     print('E: ' + str(args.epochs))
     print('LR: ' + str(args.lr))
+    print('Encoding: ' + str(args.encoding))
     print('Batch: ' + str(args.batch))
     print('Sigmoid: ' + str(args.sigmoid))
     print('Model type: ' + str(args.btype))
     print('Scaling: ' + str(args.scaling))
     
-    run_name = 'q_{0[dataset]}_lr{0[lr]}_e{0[epochs]}_b{0[batch]}_t{0[btype]}_g{0[grayscale]}_s{0[sigmoid]}'.format(params)
+    run_name = 'q_{0[dataset]}_lr{0[lr]}_e{0[epochs]}_b{0[batch]}_t{0[btype]}_g{0[grayscale]}_s{0[sigmoid]}_en{0[encoding]}'.format(params)
     run_dir = os.path.join(args.runs, run_name) 
     ckpt_dir = os.path.join(run_dir, 'ckpt')
     
@@ -184,15 +186,15 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
+    train_data = HdrVdpDataset(train_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     train_loader = DataLoader(train_data, shuffle=True, batch_size=args.batch, num_workers=8, pin_memory=True)
     
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
+    val_data = HdrVdpDataset(val_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
     
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, bScaling = args.scaling, grayscale = args.grayscale)
+    test_data = HdrVdpDataset(test_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     if args.grayscale:
@@ -316,6 +318,7 @@ if __name__ == '__main__':
                 'mse_test': test_loss,
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),
+                'encoding': args.encoding,
                 'sigmoid': args_bSigmoid,
                 'grayscale': args.grayscale
             }, ckpt)

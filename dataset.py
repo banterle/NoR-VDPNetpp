@@ -106,6 +106,7 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
 
     data = os.path.join(data_dir, 'data.csv')
     data = pd.read_csv(data)
+    data.to_csv('test.csv')
     data.sort_values(by=['Distorted'], inplace=True)
     
     if group:
@@ -210,11 +211,12 @@ class HdrVdpDataset(Dataset):
     #
     #
     #
-    def __init__(self, data, base_dir, bScaling = False, grayscale = True):
+    def __init__(self, data, base_dir, bScaling = False, grayscale = True, encoding = 'LOG10'):
         self.data = data
         self.base_dir = base_dir
         self.bScaling = bScaling
         self.grayscale = grayscale
+        self.encoding = encoding
 
     #
     #
@@ -225,8 +227,11 @@ class HdrVdpDataset(Dataset):
 
         lmax = sample.Lmax
 
-        fn = os.path.join(stim, 'stim/' + sample.Distorted)
-        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale)        
+        fn = sample.Distorted
+        fn = fn.replace('stim/', '')
+        
+        fn = os.path.join(stim, 'stim/' + fn)
+        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale, encoding = self.encoding)        
             
         q_out = sample.Q
 

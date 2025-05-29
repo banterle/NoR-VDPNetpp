@@ -7,6 +7,7 @@ import os
 import re
 import glob2
 import argparse
+import urllib.request
 
 import torch
 
@@ -14,7 +15,8 @@ from model_classic import QNetC
 from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
-
+from model_rz import QNetRZ
+from model_kang import QNetKang
 from util import read_img_cv2
 
 #
@@ -25,7 +27,7 @@ class QModel:
     #
     #
     #
-    def __init__(self, run, btype = 2, maxClip = 1400, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
+    def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
     
         self.run = run
         ext = os.path.splitext(run)[1]
@@ -43,14 +45,31 @@ class QModel:
             start_epoch, ckpt = max(get_epoch(c) for c in ckpts)
             print('Checkpoint:', ckpt)
         else:
-            ckpt = run
+            if 'http://' in run: 
+                cache_dir = os.path.expanduser('~/.cache/norvdpnetpp')
+                os.makedirs(cache_dir, exist_ok=True)
+
+                filename = os.path.basename(run)
+
+                cached_path = os.path.join(cache_dir, filename)
+
+                if not os.path.exists(cached_path):
+                    urrlib.request.urlretrive(url, cached_path)
+
+                ckpt = cached_path
+
+            else:            
+                ckpt = run
 
         bLoad = True
 
         if ckpt == 'none.pth':
             bLoad = False
             
-        n_in = 1
+        if grayscale:
+            n_in =1
+        else:
+            n_in = 3
                         
         if bLoad:
             if torch.cuda.is_available():
@@ -60,7 +79,7 @@ class QModel:
 
         if 'grayscale' in ckpt:
             if ckpt['grayscale']:
-                n_in = 1
+                n_in =1
             else:
                 n_in = 3
 
@@ -88,6 +107,8 @@ class QModel:
             model = QNetRZ(n_in, 1, bSigmoid = qbSigmoid)
         elif btype == 3:
             model = QNetRes(n_in, 1, bSigmoid = qbSigmoid)
+        elif btype == 5:
+            model = QNetKang(n_in, 1)
 
         model.load_state_dict(ckpt['model'])
 
