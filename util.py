@@ -14,7 +14,6 @@ import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
 import numpy as np
-from pu21_encoder import *
 import cv2
 import scipy
 

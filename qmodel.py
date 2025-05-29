@@ -16,7 +16,6 @@ from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
 from model_rz import QNetRZ
-from model_kang import QNetKang
 from util import read_img_cv2
 
 #
@@ -45,8 +44,8 @@ class QModel:
             start_epoch, ckpt = max(get_epoch(c) for c in ckpts)
             print('Checkpoint:', ckpt)
         else:
-            if 'http://' in run: 
-                cache_dir = os.path.expanduser('~/.cache/norvdpnetpp')
+            if 'http://' in run:
+                cache_dir = os.path.expanduser('./weights')
                 os.makedirs(cache_dir, exist_ok=True)
 
                 filename = os.path.basename(run)
@@ -54,7 +53,7 @@ class QModel:
                 cached_path = os.path.join(cache_dir, filename)
 
                 if not os.path.exists(cached_path):
-                    urrlib.request.urlretrive(url, cached_path)
+                    urllib.request.urlretrieve(run, cached_path)
 
                 ckpt = cached_path
 
@@ -107,8 +106,6 @@ class QModel:
             model = QNetRZ(n_in, 1, bSigmoid = qbSigmoid)
         elif btype == 3:
             model = QNetRes(n_in, 1, bSigmoid = qbSigmoid)
-        elif btype == 5:
-            model = QNetKang(n_in, 1)
 
         model.load_state_dict(ckpt['model'])
 

@@ -21,13 +21,29 @@ if __name__ == '__main__':
     bGrayscale = (args.color == 'gray')
         
     if args.mode == 'SDR':
-        model = QModel('weights/weights_norpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        try:
+            model = QModel('weights/norvdpnetpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        except:
+            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+
     elif args.mode == 'HDR_COMP':
-        model = QModel('weights/weights_norpp_jpg_xt.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        try:
+            model = QModel('weights/norvdpnetpp_hdrc.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        except:
+            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_hdrc.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+                    
     elif args.mode == 'HDR_ITMO':
-        model = QModel('weights/weights_norpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        try:
+            model = QModel('weights/norvdpnetpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        except:
+            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+
     elif args.mode == 'SDR_TMO':
-        model = QModel('weights/weights_norpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        try:
+            model = QModel('weights/norvdpnetpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+        except:
+            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
+
     else:
         print('The mode ' + args.mode + ' selected is not supported.')
         print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')
