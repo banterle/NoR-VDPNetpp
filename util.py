@@ -14,6 +14,7 @@ import torch
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
 import numpy as np
+from pu21_encoder import *
 import cv2
 import scipy
 
@@ -46,6 +47,7 @@ def correlation_SROCC(x, y):
 #
 #
 def fromPILtoNP(img, bNorm = False):
+    #img_np = np.array(img.getdata()).reshape(img.size[0], img.size[1], 3)
     img_np = np.array(img);
     img_np = img_np.astype('float32')
     if bNorm:
@@ -90,7 +92,7 @@ def fromNPtoPIL(img):
 #
 #
 #
-def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'LOG10'):
+def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'PU21'):
 
     ext = (os.path.splitext(filename)[1]).lower()
     
@@ -111,10 +113,8 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
 
     if grayscale: #REC 709
         if len(img.shape) == 3:
-
             if colorspace == 'REC709':
                 y = 0.2126 * img[:,:,2] + 0.7152 * img[:,:,1] + 0.0722 * img[:,:,0]
-
             elif colorspace == 'REC2020':
                 y = 0.263  * img[:,:,2] + 0.678  * img[:,:,1] + 0.059  * img[:,:,0]
         else:
@@ -127,8 +127,17 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
         if display_referred:
             y = (y * maxClip) / np.max(y)
 
+        if encoding == 'PU21':
+            pu21 = PU21Encoder()
+            y = pu21.apply(y) / pu21.apply(maxClip)
+        
         if encoding == 'LOG10':
             y = np.log10(y + 1.0)
+        
+        if encoding == 'TMO':
+            Lwa = np.exp(np.mean(np.log(y + 1e-6)))
+            y = y / Lwa
+            y = y / (y + 1)
 
     z = torch.FloatTensor(y)
 

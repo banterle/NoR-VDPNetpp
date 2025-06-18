@@ -142,6 +142,16 @@ if __name__ == '__main__':
     ### Prepare run dir
     params = vars(args)
     params['dataset'] = os.path.basename(os.path.normpath(args.data))
+
+    if 'PU21' in args.encoding:
+        args.encoding = 'PU21'
+
+
+    if 'LOG10' in args.encoding:
+        args.encoding = 'LOG10'
+
+    if 'TMO' in args.encoding:
+        args.encoding = 'TMO'
     
     #results_str = os.path.basename(os.path.normpath(args.data))
     print('Dataset: ' + str(args.data))

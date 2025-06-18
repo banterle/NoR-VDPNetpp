@@ -211,7 +211,7 @@ class HdrVdpDataset(Dataset):
     #
     #
     #
-    def __init__(self, data, base_dir, bScaling = False, grayscale = True, encoding = 'LOG10'):
+    def __init__(self, data, base_dir, bScaling = False, grayscale = True, encoding = 'PU21'):
         self.data = data
         self.base_dir = base_dir
         self.bScaling = bScaling
