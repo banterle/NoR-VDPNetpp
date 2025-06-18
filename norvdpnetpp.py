@@ -4,6 +4,7 @@
 #
 
 import os
+import sys
 import argparse
 from qmodel import QModel
 from util import read_img_cv2
