@@ -8,7 +8,6 @@ import sys
 
 import matplotlib
 matplotlib.use('Agg')
-from matplotlib import pyplot as plt
 
 import torch
 from torchvision.transforms.functional import to_tensor
@@ -147,19 +146,19 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
     return z
 
 #
+#plot graphs
 #
-#
-def plotGraph(array1, array2, array3, folder, name_f):    # plot
-    fig = plt.figure(figsize=(10, 4))
+def plotGraph(array1, array2, array3, folder, name_f):
+    fig = matplotlib.plyplot.figure(figsize=(10, 4))
     n = min([len(array1), len(array2), len(array3)])
-    plt.plot(np.arange(1, n + 1), array1[0:n])  # train loss (on epoch end)
-    plt.plot(np.arange(1, n + 1), array2[0:n])  # train loss (on epoch end)
-    plt.plot(np.arange(1, n + 1), array3[0:n])  # train loss (on epoch end)
-    plt.title("model loss")
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.legend(['train', 'validation','test'], loc="upper left")
+    matplotlib.plyplot.plot(np.arange(1, n + 1), array1[0:n])  # train loss (on epoch end)
+    matplotlib.plyplot.plot(np.arange(1, n + 1), array2[0:n])  # train loss (on epoch end)
+    matplotlib.plyplot.plot(np.arange(1, n + 1), array3[0:n])  # train loss (on epoch end)
+    matplotlib.plyplot.title("model loss")
+    matplotlib.plyplot.xlabel('epochs')
+    matplotlib.plyplot.ylabel('loss')
+    matplotlib.plyplot.legend(['train', 'validation','test'], loc="upper left")
     title = os.path.join(folder, name_f)
-    plt.savefig(title, dpi=300)
+    matplotlib.plyplot.savefig(title, dpi=300)
     fig.clf()
-    plt.close(fig)
+    matplotlib.plyplot.close(fig)
