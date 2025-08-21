@@ -6,46 +6,21 @@
 import os
 import sys
 import argparse
-from qmodel import QModel
+from model import NoRVDPNetPPModel
 from util import read_img_cv2
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('mode', type=str, help='HDR_COMP (JPEG-XT compression), HDR_ITMO (inverse tone mapping), SDR (distortions for 8-bit images), and and SDR_TMO (tone mapping distortions).')
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
-    parser.add_argument('-dr', '--displayreferred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
+    parser.add_argument('-dr', '--display_referred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
-    parser.add_argument('--color', type=str, default='gray', help='Enable/Disable color inputs')
 
     args = parser.parse_args()
-    
-    bGrayscale = (args.color == 'gray')
         
-    if args.mode == 'SDR':
-        try:
-            model = QModel('weights/norvdpnetpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-        except:
-            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_sdr.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-
-    elif args.mode == 'HDR_COMP':
-        try:
-            model = QModel('weights/norvdpnetpp_hdrc.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-        except:
-            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_hdrc.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-                    
-    elif args.mode == 'HDR_ITMO':
-        try:
-            model = QModel('weights/norvdpnetpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-        except:
-            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_itmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-
-    elif args.mode == 'SDR_TMO':
-        try:
-            model = QModel('weights/norvdpnetpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-        except:
-            model = QModel('http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_tmo.pth', btype = 2, grayscale = True, colorspace = args.colorspace, display_referred = args.displayreferred)
-
-    else:
+    model = NoRVDPNetPPModel(args.mode, colorspace = args.colorspace, display_referred = args.display_referred)
+        
+    if (args.mode != 'SDR') and (args.mode != 'HDR_COMP') and (args.mode != 'HDR_ITMO') and (args.mode != 'SDR_TMO'):
         print('The mode ' + args.mode + ' selected is not supported.')
         print('Supported modes: HDR_ITMO, HDR_COMP, SDR, and SDR_TMO.')
         sys.exit()

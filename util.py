@@ -109,13 +109,14 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
         img = img.astype('float32')
         img = img / 255.0
         #img = np.power(img, 2.2) #linearization        
-
+    
     if grayscale: #REC 709
         if len(img.shape) == 3:
             if colorspace == 'REC709':
                 y = 0.2126 * img[:,:,2] + 0.7152 * img[:,:,1] + 0.0722 * img[:,:,0]
             elif colorspace == 'REC2020':
                 y = 0.263  * img[:,:,2] + 0.678  * img[:,:,1] + 0.059  * img[:,:,0]
+
         else:
             y = img
     else:
