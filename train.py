@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--batch', type=int, default=1, help='Batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='Learning rate')
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
-    parser.add_argument('--resume', default=None, help='Path to initial weights')
+    parser.add_argument('--resume', default='none', type=str, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
     parser.add_argument('--sigmoid', type=int, default=1, help='Sigmoid last layer')
     parser.add_argument('--encoding', type=str, default='LOG10', help='Encoding for HDR values')
@@ -164,6 +164,9 @@ if __name__ == '__main__':
     print('Sigmoid: ' + str(args.sigmoid))
     print('Model type: ' + str(args.btype))
     print('Scaling: ' + str(args.scaling))
+    print('Resume: ' + str(args.resume))
+
+    resume_str= str(args.resume)
     
     run_name = 'q_{0[dataset]}_lr{0[lr]}_e{0[epochs]}_b{0[batch]}_t{0[btype]}_g{0[grayscale]}_s{0[sigmoid]}_en{0[encoding]}'.format(params)
     run_dir = os.path.join(args.runs, run_name) 
@@ -244,12 +247,14 @@ if __name__ == '__main__':
     a_te = []
 
     start_epoch = 1
-    if args.resume != None:
+    if resume_str != 'none':
     
-       if args.resume == 'same':
+       print('Resume...')
+       if resume_str == 'same':
           ckpt_dir_r = ckpt_dir
        else:
-          ckpt_dir_r = os.path.join(args.resume, 'ckpt')
+          ckpt_dir_r = os.path.join(resume_str, 'ckpt')
+
        ckpts = glob2.glob(os.path.join(ckpt_dir_r, '*.pth'))
        assert ckpts, "No checkpoints to resume from!"
     
