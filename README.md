@@ -55,10 +55,10 @@ python3 norvdpnetpp.py HDR_ITMO /home/user00/images_to_be_hdr/
 WEIGHTS DOWNLOAD:
 =================
 Weights can be downloaded here:
- <a href="http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_sdr.pth">SDR</a>, 
- <a href="http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_hdrc.pth">HDRC</a>,
-  <a href="http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_tmo.pth">TMO</a>, and
-  <a href="http://www.banterle.com/francesco/work/norvdpnetpp/norvdpnetpp_itmo.pth">ITMO</a>.
+ <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_sdr.pth">SDR</a>, 
+ <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_hdrc.pth">HDRC</a>,
+  <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_tmo.pth">TMO</a>, and
+  <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_itmo.pth">ITMO</a>.
 
 Note that these weights are meant to model ONLY determined distortions; please see reference to have a complete overview.
 

@@ -27,7 +27,7 @@ class NoRVDPNetPPModel:
     #
     #
     def __init__(self, run, btype = 2, maxClip = 1400, grayscale = True, colorspace = 'REC709', display_referred = 'yes', qbSigmoid = True):
-        url_str = 'http://www.banterle.com/francesco/work/norvdpnetpp/'
+        url_str = 'http://www.banterle.com/francesco/projects/norvdpnetpp/'
         
         bDone = False
         
