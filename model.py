@@ -61,7 +61,7 @@ class NoRVDPNetPPModel:
             bDone = True
             
         if bDone == False:
-            setup_aux(run, btype, maxClip, grayscale, colorspace, display_referred, qbSigmoid)
+            self.setup_aux(run, btype, maxClip, grayscale, colorspace, display_referred, qbSigmoid)
     
     #
     #
