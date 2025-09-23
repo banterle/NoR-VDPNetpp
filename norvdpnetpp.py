@@ -7,7 +7,6 @@ import os
 import sys
 import argparse
 from model import NoRVDPNetPPModel
-from util import read_img_cv2
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='NoR-VDPNet++', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
