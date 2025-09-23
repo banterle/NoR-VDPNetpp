@@ -10,7 +10,7 @@ from model import NoRVDPNetPPModel
 from util import read_img_cv2
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Eval Q regressor', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description='NoR-VDPNet++', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('mode', type=str, help='HDR_COMP (JPEG-XT compression), HDR_ITMO (inverse tone mapping), SDR (distortions for 8-bit images), and and SDR_TMO (tone mapping distortions).')
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-dr', '--display_referred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
