@@ -188,6 +188,8 @@ if __name__ == '__main__':
     else:
         data = os.path.splitext(os.path.basename(args.data))[0]
 
+    base_dir = os.path.dirname(args.data)
+
     if os.path.exists(os.path.join(args.data, 'train_' + data + '.csv')):
         print('Precomputed train/validation/test')
         train_data, val_data, test_data = read_data_split(args.data)
@@ -195,21 +197,22 @@ if __name__ == '__main__':
         print('Computing train/validation/test')
         train_data, val_data, test_data = split_data(args.data, group=args.group, groupaffine = args.groupaffine)
 
-        train_data.to_csv(os.path.join(args.data, 'train_' + data + '.csv'), ',')
-        val_data.to_csv(os.path.join(args.data, 'val_' + data + '.csv'), ',')
-        test_data.to_csv(os.path.join(args.data, 'test_' + data +'.csv'), ',')
+        
+        train_data.to_csv(os.path.join(base_dir, 'train_' + data + '.csv'), ',')
+        val_data.to_csv(os.path.join(base_dir, 'val_' + data + '.csv'), ',')
+        test_data.to_csv(os.path.join(base_dir, 'test_' + data +'.csv'), ',')
        
 
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    train_data = HdrVdpDataset(train_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     train_loader = DataLoader(train_data, shuffle=True, batch_size=args.batch, num_workers=8, pin_memory=True)
     
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    val_data = HdrVdpDataset(val_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
     
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    test_data = HdrVdpDataset(test_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     if args.grayscale:
@@ -276,6 +279,8 @@ if __name__ == '__main__':
     ckpt_prev = ''
 
     for epoch in trange(start_epoch, args.epochs + 1):
+
+        print('Epoch: ' + str(epoch))
         cur_loss = train(train_loader, model, optimizer, args)
         val_loss, targets_v, predictions_v = evaluate(val_loader, model, args)
         test_loss,  targets_t, predictions_t = evaluate(test_loader, model, args)
@@ -305,12 +310,6 @@ if __name__ == '__main__':
             print('Correlation: ' + str(rho0) + ' ' +str(rho1))
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '.txt'), mtx, fmt='%f')
             np.savetxt(os.path.join(run_dir, 'errors_' + out_str + '_rho.txt'), np.array([rho0, rho1, val_loss]), fmt='%f')
-            #np.savetxt(os.path.join('results_'+results_str, 'errors_' + out_str + '.txt'), mtx, fmt='%f')            
-
-            #plt.clf()
-            #sns.distplot(errors, kde=True, rug=True)
-            #plt.savefig('results_'+results_str+'/hist_errors_test_' +  out_str + '.png')
-            #plt.savefig(os.path.join(run_dir, 'hist_errors_test_' +  out_str + '.png'))
 
             plt.clf() 
             fig, ax = plt.subplots()
@@ -319,7 +318,6 @@ if __name__ == '__main__':
             plt.savefig(os.path.join(run_dir, 'scatter_plot_test_' +  out_str + '.png'))
 
             name_f = 'plot_' + out_str + '.png'
-            #plotGraph(a_t, a_v, a_te, 'results_'+results_str, name_f)
             plotGraph(a_t, a_v, a_te, run_dir, name_f)
                         
             plt.close('all')

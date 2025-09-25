@@ -107,6 +107,8 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
 
     if '.csv' not in data_dir:  
         data = os.path.join(data_dir, 'data.csv')
+    else:
+        data = data_dir
     
     data = pd.read_csv(data)
     data.sort_values(by=['Distorted'], inplace=True)
@@ -174,10 +176,10 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
     val = filterData(val)
     test = filterData(test)
 
-    if group:
-        train = pd.concat(train)
-        val = pd.concat(val)
-        test = pd.concat(test)
+    #if group:
+    #    train = pd.concat(train)
+    #    val = pd.concat(val)
+    #    test = pd.concat(test)
 
     return train, val, test
 
@@ -209,6 +211,7 @@ class HdrVdpDataset(Dataset):
         fn = fn.replace('stim/', '')
         
         fn = os.path.join(stim, 'stim/' + fn)
+
         stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale, encoding = self.encoding)        
             
         q_out = sample.Q
