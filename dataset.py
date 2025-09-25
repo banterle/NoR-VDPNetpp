@@ -48,6 +48,7 @@ def getVec(data):
     for i in range(0, n):
         q = data.iloc[i].Q
         vec.append(q)
+
         index = int(np.ceil(q))
         hist[index] += 1
         
@@ -104,9 +105,10 @@ def read_data_split(data_dir):
 #
 def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
 
-    data = os.path.join(data_dir, 'data.csv')
+    if '.csv' not in data_dir:  
+        data = os.path.join(data_dir, 'data.csv')
+    
     data = pd.read_csv(data)
-    data.to_csv('test.csv')
     data.sort_values(by=['Distorted'], inplace=True)
     
     if group:
@@ -151,55 +153,31 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
     #
     #
     #
-    print(len(train))
     q_tra, h_tra = getVec(train)
     q_val, h_val = getVec(val)
     q_tes, h_tes = getVec(test)
     
     plt.clf()
     sns.distplot(q_tra, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_train0.png')
+    plt.savefig('hist_q_train.png')
     plt.clf()
     sns.distplot(q_val, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_val0.png')
+    plt.savefig('hist_q_val.png')
     plt.clf()
     sns.distplot(q_tes, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_test0.png')
+    plt.savefig('hist_q_test.png')
     
     #
     #
-    #
-    
+    #   
     train = filterData(train)
     val = filterData(val)
     test = filterData(test)
-    
-    #train = pd.concat(train)
-    #val = pd.concat(val)
-    #test = pd.concat(test)
 
-    #
-    #
-    #
-    q_tra, h_tra = getVec(train)
-    q_val, h_val = getVec(val)
-    q_tes, h_tes = getVec(test)
-
-    plt.clf()
-    sns.distplot(q_tra, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_train1.png')
-    plt.clf()
-    sns.distplot(q_val, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_val1.png')
-    plt.clf()
-    sns.distplot(q_tes, kde=True, rug=True, bins=100)
-    plt.savefig('hist_q_test1.png')
-
-
-    #if group:
-    #    train = pd.concat(train)
-    #    val = pd.concat(val)
-    #    test = pd.concat(test)
+    if group:
+        train = pd.concat(train)
+        val = pd.concat(val)
+        test = pd.concat(test)
 
     return train, val, test
 

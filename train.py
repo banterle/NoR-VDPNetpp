@@ -146,7 +146,6 @@ if __name__ == '__main__':
     if 'PU21' in args.encoding:
         args.encoding = 'PU21'
 
-
     if 'LOG10' in args.encoding:
         args.encoding = 'LOG10'
 
@@ -184,19 +183,22 @@ if __name__ == '__main__':
     pd.DataFrame(params, index=[0]).to_csv(param_file, index=False)
     
     ### Load Data
-    if os.path.exists(os.path.join(args.data, 'train.csv')):
+    if '.csv' not in args.data:  
+        data = 'data'
+    else:
+        data = os.path.splitext(os.path.basename(args.data))[0]
+
+    if os.path.exists(os.path.join(args.data, 'train_' + data + '.csv')):
         print('Precomputed train/validation/test')
         train_data, val_data, test_data = read_data_split(args.data)
     else:
         print('Computing train/validation/test')
         train_data, val_data, test_data = split_data(args.data, group=args.group, groupaffine = args.groupaffine)
-        train_data.to_csv(os.path.join(args.data, "train.csv"), ',')
-        val_data.to_csv(os.path.join(args.data, "val.csv"), ',')
-        test_data.to_csv(os.path.join(args.data, "test.csv"), ',')
-        
-        train_data.to_csv(os.path.join(run_dir, "train.csv"), ',')
-        val_data.to_csv(os.path.join(run_dir, "val.csv"), ',')
-        test_data.to_csv(os.path.join(run_dir, "test.csv"), ',')
+
+        train_data.to_csv(os.path.join(args.data, 'train_' + data + '.csv'), ',')
+        val_data.to_csv(os.path.join(args.data, 'val_' + data + '.csv'), ',')
+        test_data.to_csv(os.path.join(args.data, 'test_' + data +'.csv'), ',')
+       
 
     #create the loader for the training set
     train_data = HdrVdpDataset(train_data, args.data, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
