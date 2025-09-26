@@ -218,14 +218,16 @@ class HdrVdpDataset(Dataset):
         sz = stim.shape
         
         patchSize = 512
-        if((sz[1] > patchSize) and (sz[2] > patchSize)):
-            if self.crop:
+        if self.crop:
+            if(sz[1] > patchSize):         
                 limit_y = sz[1] - patchSize - 1
+                y = int(np.round(np.random.rand() * limit_y))            
+                stim = stim[:,y:(y + patchSize),:]           
+
+            if(sz[2] > patchSize):
                 limit_x = sz[2] - patchSize - 1
                 x = int(np.round(np.random.rand() * limit_x))
-                y = int(np.round(np.random.rand() * limit_y))
-            
-                stim = stim[:,y:(y + patchSize),x:(x + patchSize)]           
+                stim = stim[:,:,x:(x + patchSize)]           
 
         q_out = sample.Q
 
