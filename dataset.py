@@ -111,7 +111,7 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
         data = data_dir
     
     data = pd.read_csv(data)
-    data.sort_values(by=['Distorted'], inplace=True)
+    #data.sort_values(by=['Distorted'], inplace=True)
     
     if group:
         print('Grouping')
@@ -191,12 +191,13 @@ class HdrVdpDataset(Dataset):
     #
     #
     #
-    def __init__(self, data, base_dir, bScaling = False, grayscale = True, encoding = 'PU21'):
+    def __init__(self, data, base_dir, bScaling = False, grayscale = True, encoding = 'PU21', crop = False):
         self.data = data
         self.base_dir = base_dir
         self.bScaling = bScaling
         self.grayscale = grayscale
         self.encoding = encoding
+        self.crop = crop
 
     #
     #
@@ -212,8 +213,20 @@ class HdrVdpDataset(Dataset):
         
         fn = os.path.join(stim, 'stim/' + fn)
 
-        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale, encoding = self.encoding)        
+        stim = read_img_cv2(fn, maxClip = sample.Lmax, grayscale = self.grayscale, encoding = self.encoding) 
+               
+        sz = stim.shape
+        
+        patchSize = 512
+        if((sz[1] > patchSize) and (sz[2] > patchSize)):
+            if self.crop:
+                limit_y = sz[1] - patchSize - 1
+                limit_x = sz[2] - patchSize - 1
+                x = int(np.round(np.random.rand() * limit_x))
+                y = int(np.round(np.random.rand() * limit_y))
             
+                stim = stim[:,y:(y + patchSize),x:(x + patchSize)]           
+
         q_out = sample.Q
 
         if self.bScaling:

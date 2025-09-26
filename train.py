@@ -132,6 +132,7 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--runs', type=str, default='runs/', help='Base dir for runs')
     parser.add_argument('--resume', default='none', type=str, help='Path to initial weights')
     parser.add_argument('--grayscale', type=int, default=1, help='Grayscale')
+    parser.add_argument('--crop', type=int, default=0, help='crop data')
     parser.add_argument('--sigmoid', type=int, default=1, help='Sigmoid last layer')
     parser.add_argument('--encoding', type=str, default='LOG10', help='Encoding for HDR values')
     args = parser.parse_args()
@@ -164,6 +165,7 @@ if __name__ == '__main__':
     print('Model type: ' + str(args.btype))
     print('Scaling: ' + str(args.scaling))
     print('Resume: ' + str(args.resume))
+    print('Crop: ' + str(args.crop))
 
     resume_str= str(args.resume)
     
@@ -203,16 +205,17 @@ if __name__ == '__main__':
         test_data.to_csv(os.path.join(base_dir, 'test_' + data +'.csv'), ',')
        
 
+    bCrop = (args.crop == 1)
     #create the loader for the training set
-    train_data = HdrVdpDataset(train_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    train_data = HdrVdpDataset(train_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding, crop = bCrop)
     train_loader = DataLoader(train_data, shuffle=True, batch_size=args.batch, num_workers=8, pin_memory=True)
     
     #create the loader for the validation set
-    val_data = HdrVdpDataset(val_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    val_data = HdrVdpDataset(val_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding, crop = bCrop)
     val_loader = DataLoader(val_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
     
     #create the loader for the testing set
-    test_data = HdrVdpDataset(test_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding)
+    test_data = HdrVdpDataset(test_data, base_dir, bScaling = args.scaling, grayscale = args.grayscale, encoding = args.encoding, crop = bCrop)
     test_loader = DataLoader(test_data, shuffle=False, batch_size=1, num_workers=8, pin_memory=True)
 
     if args.grayscale:
