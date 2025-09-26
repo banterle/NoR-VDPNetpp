@@ -279,8 +279,6 @@ if __name__ == '__main__':
     ckpt_prev = ''
 
     for epoch in trange(start_epoch, args.epochs + 1):
-
-        print('Epoch: ' + str(epoch))
         cur_loss = train(train_loader, model, optimizer, args)
         val_loss, targets_v, predictions_v = evaluate(val_loader, model, args)
         test_loss,  targets_t, predictions_t = evaluate(test_loader, model, args)
