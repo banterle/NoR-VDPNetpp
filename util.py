@@ -91,7 +91,7 @@ def fromNPtoPIL(img):
 #
 #
 #
-def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'PU21'):
+def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'LOG10'):
 
     ext = (os.path.splitext(filename)[1]).lower()
     
