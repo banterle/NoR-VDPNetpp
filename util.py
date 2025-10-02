@@ -91,7 +91,7 @@ def fromNPtoPIL(img):
 #
 #
 #
-def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'PU21'):
+def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709', display_referred = True, encoding = 'LOG10'):
 
     ext = (os.path.splitext(filename)[1]).lower()
     
@@ -118,11 +118,10 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
                 y = 0.263  * img[:,:,2] + 0.678  * img[:,:,1] + 0.059  * img[:,:,0]
 
         else:
-            y = img
+            y = img.mean(axis=0)
     else:
-        sz = img.shape
-        y = np.reshape(img, (sz[2], sz[1], sz[0]))
-
+        y = img
+ 
     if log_range:
         if display_referred:
             y = (y * maxClip) / np.max(y)
@@ -139,10 +138,11 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
             y = y / Lwa
             y = y / (y + 1)
 
-    z = torch.FloatTensor(y)
-
     if grayscale:
+        z = torch.FloatTensor(y)
         z = z.unsqueeze(0)
+    else:
+        z = torch.from_numpy(y).permute(2,0,1)
 
     return z
 
