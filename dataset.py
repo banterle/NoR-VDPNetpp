@@ -62,12 +62,14 @@ def filterData(data):
     
     fn = []
     q_val = []
+    q_std_val = []
     lmax = []
     gpa = []
         
     n = len(data)
 
     bI = False
+    bS = False
     for i in range(0, n):          
         fn.append(data.iloc[i].Distorted)
         q_val.append(data.iloc[i].Q)
@@ -76,11 +78,21 @@ def filterData(data):
         if 'I' in data.iloc[i]:
             gpa.append(data.iloc[i].I)
             bI = True
+
+        if 'Q_std' in data.iloc[i]:
+            q_std_val.append(data.iloc[i].Q_std)
+            bS = True
  
-    if bI:
-        d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val, 'I': gpa}
+    if bS == False:
+        if bI:
+            d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val, 'I': gpa}
+        else:
+            d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val}
     else:
-        d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val}
+        if bI:
+            d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val, 'Q_std': q_std_val, 'I': gpa}
+        else:
+            d = {'Distorted': fn, 'Lmax': lmax, 'Q': q_val, 'Q_std': q_std_val}
 
     out = pd.DataFrame(data=d)
     return out
@@ -114,12 +126,14 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
     #data.sort_values(by=['Distorted'], inplace=True)
     
     if group:
+        bS = False
         print('Grouping')
         if groupaffine > 1:
            print('Groups transformations are online')
            n = len(data)
            img_fn = []
            q_val = []
+           q_std_val = []
            lmax = []
            gpa = []
            for i in range(0, n):
@@ -131,8 +145,17 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
                    img_fn.append(tmp0)
                    q_val.append(tmp1)
                    lmax.append(tmp2)
+                   if 'Q_std' in data.iloc[i]:
+                       tmp3 = data.iloc[i].Q_std
+                       q_std_val.append(tmp3)
+                       bS = True
                    gpa.append(j)
-           d = {'Distorted': img_fn, 'Lmax': lmax, 'Q': q_val, 'I': gpa}
+
+           if bS == False:
+               d = {'Distorted': img_fn, 'Lmax': lmax, 'Q': q_val, 'I': gpa}
+           else:
+               d = {'Distorted': img_fn, 'Lmax': lmax, 'Q': q_val, 'Q_std': q_std_val, 'I': gpa}
+
            data = pd.DataFrame(data=d)
            group = group * groupaffine
         else:
@@ -160,13 +183,13 @@ def split_data(data_dir, random_state=42, group=None, groupaffine= 1):
     q_tes, h_tes = getVec(test)
     
     plt.clf()
-    sns.distplot(q_tra, kde=True, rug=True, bins=100)
+    sns.displot(q_tra, kde=True, rug=True, bins=100)
     plt.savefig('hist_q_train.png')
     plt.clf()
-    sns.distplot(q_val, kde=True, rug=True, bins=100)
+    sns.displot(q_val, kde=True, rug=True, bins=100)
     plt.savefig('hist_q_val.png')
     plt.clf()
-    sns.distplot(q_tes, kde=True, rug=True, bins=100)
+    sns.displot(q_tes, kde=True, rug=True, bins=100)
     plt.savefig('hist_q_test.png')
     
     #
@@ -217,8 +240,8 @@ class HdrVdpDataset(Dataset):
                
         sz = stim.shape
         
-        patchSize = 512
         if self.crop:
+            patchSize = 512
             if(sz[1] > patchSize):         
                 limit_y = sz[1] - patchSize - 1
                 y = int(np.round(np.random.rand() * limit_y))            
@@ -229,12 +252,11 @@ class HdrVdpDataset(Dataset):
                 x = int(np.round(np.random.rand() * limit_x))
                 stim = stim[:,:,x:(x + patchSize)]           
 
-        q_out = sample.Q
+        q = sample.Q
 
         if self.bScaling:
-            q = torch.FloatTensor([q_out / 100.0])
-        else:
-            q = torch.FloatTensor([q_out])
+            q =  q / 100.0        
+        q = torch.FloatTensor([q])
          
         if self.bScaling:
             lmax = torch.FloatTensor([sample.Lmax / 10000.0])
@@ -243,7 +265,17 @@ class HdrVdpDataset(Dataset):
         if 'I' in sample :
             stim = torchDataAugmentation(stim, sample.I)
 
-        return stim, q, lmax
+        q_std = 1.0
+        if 'Q_std' in sample:
+            q_std = sample.Q_std
+
+            if self.bScaling:
+                q_std =  q_std / 100.0    
+    
+        q_std = torch.FloatTensor([q_std])
+
+
+        return stim, q, q_std, lmax
 
     #
     #
