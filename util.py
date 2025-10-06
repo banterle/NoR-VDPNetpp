@@ -118,7 +118,7 @@ def read_img_cv2(filename, maxClip = 1e4, grayscale = True, colorspace = 'REC709
                 y = 0.263  * img[:,:,2] + 0.678  * img[:,:,1] + 0.059  * img[:,:,0]
 
         else:
-            y = img.mean(axis=0)
+            y = img
     else:
         y = img
  
