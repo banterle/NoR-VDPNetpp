@@ -60,7 +60,7 @@ Weights can be downloaded here:
   <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_tmo.pth">TMO</a>, and
   <a href="http://www.banterle.com/francesco/projects/norvdpnetpp/norvdpnetpp_itmo.pth">ITMO</a>.
 
-Note that these weights are meant to model ONLY determined distortions; please see reference to have a complete overview.
+Note that these weights are meant to model ONLY determined distortions; please read the paper to have a complete overview.
 
 
 DO NOT:
