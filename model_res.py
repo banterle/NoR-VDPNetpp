@@ -31,8 +31,12 @@ class QNetRes(nn.Module):
         for param in resnet.parameters():
             param.requires_grad = False
             
+        resnet.eval()
+            
         modules = list(resnet.children())[:-1] #remove the last fc layer.
         self.resnet = nn.Sequential(*modules)
+        
+        self.resnet.eval()
 
         #network            
         self.regressor = Regressor(resnet.fc.in_features, out_size, params_size, bSigmoid)
@@ -59,7 +63,8 @@ class QNetRes(nn.Module):
 
         stim = (stim - 0.45) / 0.225
             
-        x = self.resnet(stim)      #apply ResNet
+        with torch.no_grad():
+            x = self.resnet(stim)      #apply ResNet
         x = x.view(x.size(0), -1)  #flatten output of conv
 
         q = self.regressor(x, lmax)
