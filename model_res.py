@@ -36,8 +36,6 @@ class QNetRes(nn.Module):
         modules = list(resnet.children())[:-1] #remove the last fc layer.
         self.resnet = nn.Sequential(*modules)
         
-        self.resnet.eval()
-
         #network            
         self.regressor = Regressor(resnet.fc.in_features, out_size, params_size, bSigmoid)
     
