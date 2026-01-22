@@ -14,6 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('img_folder', type=str, help='Base dir of run to evaluate')
     parser.add_argument('-dr', '--display_referred', type=str, default='yes', help='Do we need to apply the display? (yes/no)')
     parser.add_argument('-cs', '--colorspace', type=str, default='REC709', help='Color space of the input images')
+    parser.add_argument('-out', '--output', type=str, default='output.csv', help='Results stored in a .csv file')
 
     args = parser.parse_args()
         
@@ -36,9 +37,16 @@ if __name__ == '__main__':
     
     names = names_hdr + names_sdr
     
+    f = open(args.out, 'w')
+
     for name in names:
         fn = os.path.join(args.img_folder, name)
         p_model = float(model.predict(fn))
+
+        f.write(name + ',' + str(p_model) + '\n')
+
         print(name + " Q: " + str(round(p_model * 10000)/100))
 
+
+    f.close()
     del model
