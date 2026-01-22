@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     names = names_hdr + names_sdr
     
-    f = open(args.out, 'w')
+    f = open(args.output, 'w')
 
     for name in names:
         fn = os.path.join(args.img_folder, name)
