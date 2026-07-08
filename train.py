@@ -35,6 +35,8 @@ from model_bn import QNetBN
 from model_rz import QNetRZ
 from model_res import QNetRes
 
+#F:\Datasets\NOR\vdp_sdr
+
 #
 #
 #
@@ -55,7 +57,7 @@ def train(loader, model, optimizer, args):
     counter = 0
     bSigmoid = (args.sigmoid == 1)
 
-    for stim, q, lmax in progress:
+    for stim, q, q_std, lmax in progress:
         if torch.cuda.is_available():
             stim = stim.cuda()
             q = q.cuda()
@@ -90,7 +92,7 @@ def evaluate(loader, model, args):
 
     bSigmoid = (args.sigmoid == 1)
 
-    for stim, q, lmax in progress:
+    for stim, q, q_std, lmax in progress:
         with torch.no_grad():
             if torch.cuda.is_available():
                 stim = stim.cuda()
